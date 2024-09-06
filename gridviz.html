@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="generator" content="Observable Framework v1.11.0">
-<title>Observable Sandbox</title>
+<title>Gridviz | Observable Sandbox</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
 <link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight.6e6037b3.css">
@@ -14,7 +14,40 @@
 <link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
 <script type="module">
 
-import "./_observablehq/client.d8d98a61.js";
+import {define} from "./_observablehq/client.d8d98a61.js";
+
+define({id: "341b8381", inputs: ["gridviz","display"], body: async (gridviz,display) => {
+display(await(
+gridviz
+))
+}});
+
+define({id: "d200c07a", inputs: ["gridviz"], outputs: ["map"], body: (gridviz) => {
+//define map with initial view
+    const map = new gridviz.Map(document.getElementById('map'), { x: 3900000, y: 2960000, z: 500, zoomExtent: [100, 1500] })
+        .addZoomButtons()
+
+    // //define dataset
+    // const dataset = new gridviz.CSVGrid(map, "https://raw.githubusercontent.com/eurostat/gridviz/master/assets/csv/Europe/pop_2018_10km.csv", 10000)
+
+    // //define style
+    // const scale = gridviz.powerScale(0.4)
+    // const style = new gridviz.NinjaStarStyle({
+    //     color: () => 'purple',
+    //     size: (c, r, z) => scale(c.population / 300000)
+    // })
+
+    // //add layer to map
+    // map.layers = [new gridviz.GridLayer(dataset, [style])]
+
+return {map};
+}});
+
+define({id: "75aefc3a", body: () => {
+// Data Import
+// const data = await FileAttachment("/data/grid.json").json()
+// display(Inputs.table(data))
+}});
 
 </script>
 <input id="observablehq-sidebar-toggle" type="checkbox" title="Toggle sidebar">
@@ -22,7 +55,7 @@ import "./_observablehq/client.d8d98a61.js";
 <nav id="observablehq-sidebar">
   <ol>
     <label id="observablehq-sidebar-close" for="observablehq-sidebar-toggle"></label>
-    <li class="observablehq-link observablehq-link-active"><a href="./">Observable Sandbox</a></li>
+    <li class="observablehq-link"><a href="./">Observable Sandbox</a></li>
   </ol>
   <ol>
     <li class="observablehq-link"><a href="./bars">Bars and Pubs in Paris</a></li>
@@ -30,7 +63,7 @@ import "./_observablehq/client.d8d98a61.js";
     <li class="observablehq-link"><a href="./deck_test1">A simple circle</a></li>
     <li class="observablehq-link"><a href="./deckfromfil">An example from Fil</a></li>
     <li class="observablehq-link"><a href="./geoviz_globe">Untitled</a></li>
-    <li class="observablehq-link"><a href="./gridviz">Gridviz</a></li>
+    <li class="observablehq-link observablehq-link-active"><a href="./gridviz">Gridviz</a></li>
     <li class="observablehq-link"><a href="./maplibre">Untitled</a></li>
     <li class="observablehq-link"><a href="./webR">Test some things with webR</a></li>
   </ol>
@@ -42,11 +75,16 @@ import "./_observablehq/client.d8d98a61.js";
 </aside>
 <div id="observablehq-center">
 <main id="observablehq-main" class="observablehq">
-<div align="center">In this sandbox, I share tests, things ans stuff I've done with <a href="https://observablehq.com/framework/" target="_BLANK" rel="noopener noreferrer">Observable Framework</a>. This is self-learning process. If things are done in a wrong way, it's because I'm still on my way to learning. If you have any suggestions or comments, don't hesitate to use <a href="https://github.com/neocarto/observable-sandbox/issues" taret="_BLANK" target="_blank" rel="noopener noreferrer">github issues</a></div>
-<br>
-<div align="center">If you prefer, you'll find many other examples in <a href="https://observablehq.com/user/@neocartocnrs" taret="_BLANK" target="_blank" rel="noopener noreferrer">Observable Notbooks</a></div></main>
+<h1 id="gridviz" tabindex="-1"><a class="observablehq-header-anchor" href="#gridviz">Gridviz</a></h1>
+<div class="observablehq observablehq--block">
+  <div class="observablehq--inspect observablehq--error">SyntaxError: Unterminated string constant (2:25)</div>
+</div>
+<div class="observablehq observablehq--block"><observablehq-loading></observablehq-loading><!--:341b8381:--></div>
+<div class="observablehq observablehq--block"><!--:d200c07a:--></div>
+<div class="observablehq observablehq--block"><!--:75aefc3a:--></div>
+</main>
 <footer id="observablehq-footer">
-<nav><a rel="next" href="./bars"><span>Bars and Pubs in Paris</span></a></nav>
+<nav><a rel="prev" href="./geoviz_globe"><span>Untitled</span></a><a rel="next" href="./maplibre"><span>Untitled</span></a></nav>
 <div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2024-09-06T12:09:01">Sep 6, 2024</a>.</div>
 </footer>
 </div>

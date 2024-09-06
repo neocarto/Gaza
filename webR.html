@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="generator" content="Observable Framework v1.11.0">
+<title>Test some things with webR | Observable Sandbox</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
+<link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight.6e6037b3.css">
+<link rel="preload" as="style" href="./_observablehq/stdlib/inputs.ea9fd553.css">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
+<link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight.6e6037b3.css">
+<link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.ea9fd553.css">
+<link rel="modulepreload" href="./_observablehq/client.d8d98a61.js">
+<link rel="modulepreload" href="./_observablehq/runtime.62b61640.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.10504731.js">
+<link rel="modulepreload" href="./_npm/webr@0.4.1/ac5e0883.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
+<link rel="modulepreload" href="./_observablehq/stdlib/inputs.470d1590.js">
+<link rel="modulepreload" href="./_npm/htl@0.3.1/063eb405.js">
+<link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
+<link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
+<script type="module">
+
+import {define} from "./_observablehq/client.d8d98a61.js";
+import {registerFile} from "./_observablehq/stdlib.10504731.js";
+
+registerFile("./data/worlddata.csv", {"name":"./data/worlddata.csv","mimeType":"text/csv","path":"./_file/data/worlddata.56b6caf7.csv","lastModified":1725624537575,"size":15954});
+
+define({id: "94893b56", outputs: ["WebR","webR"], body: async () => {
+const {WebR} = await import("./_npm/webr@0.4.1/ac5e0883.js");
+const webR = new WebR();
+await webR.init();
+return {WebR,webR};
+}});
+
+define({id: "9e483143", inputs: ["view","Inputs"], outputs: ["nb"], body: (view,Inputs) => {
+const nb = view(Inputs.range([10, 100], {value: 100, label: "nb", step: 1}));
+return {nb};
+}});
+
+define({id: "6c69a803", inputs: ["webR","nb","display"], outputs: ["result","output"], body: async (webR,nb,display) => {
+let result = await webR.evalR(`rnorm(${nb},5,1)`);
+let output = await result.toArray();
+display(output)
+return {result,output};
+}});
+
+define({id: "870f9673", inputs: ["webR","nb","display"], outputs: ["shelter","result2"], body: async (webR,nb,display) => {
+let shelter = await new webR.Shelter();
+let result2 = await shelter.captureR(`print(rnorm(${nb},5,1))`);
+display(result2.output);
+
+shelter.purge();
+return {shelter,result2};
+}});
+
+define({id: "143f66e3", inputs: ["webR"], outputs: ["sort"], body: (webR) => {
+let sort = webR.evalR("sort")
+return {sort};
+}});
+
+define({id: "8798acf8", inputs: ["sort","output","display"], outputs: ["sorted"], body: async (sort,output,display) => {
+let sorted = await sort(output)
+display(sorted.values)
+return {sorted};
+}});
+
+define({id: "23eeff21", inputs: ["webR"], outputs: ["multi2"], body: (webR) => {
+async function multi2(arr) {
+  const fn = await webR.evalR("function(x) { 2 * x }");
+  const result3 = await fn.exec(arr);
+  return result3.toArray();
+}
+return {multi2};
+}});
+
+define({id: "1f6c1450", inputs: ["display","multi2"], body: async (display,multi2) => {
+display(await multi2([1, 2, 3]))
+}});
+
+define({id: "1023b1a4", inputs: ["view","Inputs"], outputs: ["myvar"], body: (view,Inputs) => {
+let myvar = view(Inputs.select(["pop", "gdp", "gdppc", "region"]))
+return {myvar};
+}});
+
+define({id: "138bee9e", inputs: ["FileAttachment","myvar","display"], outputs: ["data","mydata"], body: async (FileAttachment,myvar,display) => {
+let data = await FileAttachment("./data/worlddata.csv").csv({ typed: true })
+let mydata = data.map(d => +d[myvar])
+display(mydata)
+return {data,mydata};
+}});
+
+define({id: "b001a9eb", inputs: ["webR","mydata","display"], body: async (webR,mydata,display) => {
+{
+
+  await webR.objs.globalEnv.bind("arr", mydata);
+  let shelter = await new webR.Shelter();
+  let rcode = `summary(arr)`;
+  let { output } = await shelter.captureR(rcode, { withAutoprint: true });
+  display(output.map((line) => line.data).join("\n"))
+}
+}});
+
+define({id: "e63798a7", inputs: ["webR"], body: async (webR) => {
+await webR.installPackages(['classInt'])
+await webR.evalRVoid("library(classInt)");
+}});
+
+define({id: "f6029fae", inputs: ["view","Inputs"], outputs: ["method"], body: (view,Inputs) => {
+let method = view(Inputs.select(["sd", "equal", "pretty", "quantile", "kmeans", "hclust", "bclust", "fisher", "jenks", "dpih", "headtails"]
+))
+return {method};
+}});
+
+define({id: "df889aa9", inputs: ["view","Inputs"], outputs: ["n"], body: (view,Inputs) => {
+const n = view(Inputs.range([2, 10], {value: 5, label: "n", step: 1}));
+return {n};
+}});
+
+define({id: "5b02428a", inputs: ["webR","mydata","n","method","shelter","display"], body: async (webR,mydata,n,method,shelter,display) => {
+{
+
+  await webR.objs.globalEnv.bind("arr", mydata);
+  // let shelter = await new webR.Shelter();
+
+
+  //let rcode = `summary(arr)`;
+  let rcode = `classIntervals(arr, n=${n}, style = "${method}")`;
+  let { output } = await shelter.captureR(rcode, { withAutoprint: true });
+  display(output.map((line) => line.data).join("\n"))
+}
+}});
+
+define({id: "707399dd", inputs: ["webR"], outputs: ["getbreaks"], body: (webR) => {
+async function getbreaks(nb, method) {
+  const fn = await webR.evalR("function(method, n) {classIntervals(arr, n=n, style = method)}");
+  const result4 = await fn.exec(nb, method);
+  return result4.toArray();
+}
+return {getbreaks};
+}});
+
+define({id: "cbb332e6", inputs: ["display","getbreaks","method","n"], body: async (display,getbreaks,method,n) => {
+display(await getbreaks(method, n))
+}});
+
+</script>
+<input id="observablehq-sidebar-toggle" type="checkbox" title="Toggle sidebar">
+<label id="observablehq-sidebar-backdrop" for="observablehq-sidebar-toggle"></label>
+<nav id="observablehq-sidebar">
+  <ol>
+    <label id="observablehq-sidebar-close" for="observablehq-sidebar-toggle"></label>
+    <li class="observablehq-link"><a href="./">Observable Sandbox</a></li>
+  </ol>
+  <ol>
+    <li class="observablehq-link"><a href="./bars">Bars and Pubs in Paris</a></li>
+    <li class="observablehq-link"><a href="./bars2">Bars and Pubs in Paris (2)</a></li>
+    <li class="observablehq-link"><a href="./deck_test1">A simple circle</a></li>
+    <li class="observablehq-link"><a href="./deckfromfil">An example from Fil</a></li>
+    <li class="observablehq-link"><a href="./geoviz_globe">Untitled</a></li>
+    <li class="observablehq-link"><a href="./gridviz">Gridviz</a></li>
+    <li class="observablehq-link"><a href="./maplibre">Untitled</a></li>
+    <li class="observablehq-link observablehq-link-active"><a href="./webR">Test some things with webR</a></li>
+  </ol>
+</nav>
+<script>{Object.assign(document.createElement("a"),{href:""}).password&&location.replace(location.href);const e=document.querySelector("#observablehq-sidebar"),t=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?t.checked=r==="true":t.indeterminate=!0;for(const o of document.querySelectorAll("#observablehq-sidebar summary")){const s=o.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${o.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
+<aside id="observablehq-toc" data-selector="h1:not(:first-of-type)[id], h2:first-child[id], :not(h1) + h2[id]">
+<nav>
+<div>Contents</div>
+<ol>
+<li class="observablehq-secondary-link"><a href="#r-sort-function">R sort() function</a></li>
+<li class="observablehq-secondary-link"><a href="#test-r-function-on-array-of-values-in-js">Test R function on array of values in js</a></li>
+<li class="observablehq-secondary-link"><a href="#summary-of-a-js-data-with-r">Summary of a js data with R</a></li>
+<li class="observablehq-secondary-link"><a href="#packages-class-int">Packages classInt</a></li>
+</ol>
+</nav>
+</aside>
+<div id="observablehq-center">
+<main id="observablehq-main" class="observablehq">
+<div class="observablehq observablehq--block"><!--:94893b56:--></div>
+<h1 id="test-some-things-with-web-r" tabindex="-1"><a class="observablehq-header-anchor" href="#test-some-things-with-web-r">Test some things with webR</a></h1>
+<h2 id="rnorm" tabindex="-1"><a class="observablehq-header-anchor" href="#rnorm">rnorm()</a></h2>
+<div class="observablehq observablehq--block"><!--:9e483143:--></div>
+<div class="observablehq observablehq--block"><!--:6c69a803:--></div>
+<div class="observablehq observablehq--block"><!--:870f9673:--></div>
+<h2 id="r-sort-function" tabindex="-1"><a class="observablehq-header-anchor" href="#r-sort-function">R sort() function</a></h2>
+<div class="observablehq observablehq--block"><!--:143f66e3:--></div>
+<div class="observablehq observablehq--block"><!--:8798acf8:--></div>
+<h2 id="test-r-function-on-array-of-values-in-js" tabindex="-1"><a class="observablehq-header-anchor" href="#test-r-function-on-array-of-values-in-js">Test R function on array of values in js</a></h2>
+<div class="observablehq observablehq--block"><!--:23eeff21:--></div>
+<div class="observablehq observablehq--block"><observablehq-loading></observablehq-loading><!--:1f6c1450:--></div>
+<h2 id="summary-of-a-js-data-with-r" tabindex="-1"><a class="observablehq-header-anchor" href="#summary-of-a-js-data-with-r">Summary of a js data with R</a></h2>
+<div class="observablehq observablehq--block"><!--:1023b1a4:--></div>
+<div class="observablehq observablehq--block"><!--:138bee9e:--></div>
+<div class="observablehq observablehq--block"><!--:b001a9eb:--></div>
+<h1 id="packages-class-int" tabindex="-1"><a class="observablehq-header-anchor" href="#packages-class-int">Packages classInt</a></h1>
+<div class="observablehq observablehq--block"><!--:e63798a7:--></div>
+<div class="observablehq observablehq--block"><!--:f6029fae:--></div>
+<div class="observablehq observablehq--block"><!--:df889aa9:--></div>
+<div class="observablehq observablehq--block"><!--:5b02428a:--></div>
+<div class="observablehq observablehq--block"><!--:707399dd:--></div>
+<div class="observablehq observablehq--block"><observablehq-loading></observablehq-loading><!--:cbb332e6:--></div>
+<p><a href="https://repo.r-wasm.org/" target="_blank" rel="noopener noreferrer">https://repo.r-wasm.org/</a></p>
+</main>
+<footer id="observablehq-footer">
+<nav><a rel="prev" href="./maplibre"><span>Untitled</span></a></nav>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2024-09-06T12:09:01">Sep 6, 2024</a>.</div>
+</footer>
+</div>
