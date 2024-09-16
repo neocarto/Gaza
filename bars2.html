@@ -13,7 +13,7 @@
 <link rel="modulepreload" href="./_observablehq/client.d8d98a61.js">
 <link rel="modulepreload" href="./_observablehq/runtime.62b61640.js">
 <link rel="modulepreload" href="./_observablehq/stdlib.10504731.js">
-<link rel="modulepreload" href="./_npm/maplibre-gl@4.6.0/a215d58a.js">
+<link rel="modulepreload" href="./_npm/maplibre-gl@4.7.0/93efe05b.js">
 <link rel="modulepreload" href="./_npm/deck.gl@9.0.29/dist.min.js.d8da2739.js">
 <link rel="modulepreload" href="./_npm/htl@0.3.1/063eb405.js">
 <link rel="modulepreload" href="./_observablehq/stdlib/inputs.470d1590.js">
@@ -24,12 +24,12 @@
 import {define} from "./_observablehq/client.d8d98a61.js";
 import {registerFile} from "./_observablehq/stdlib.10504731.js";
 
-registerFile("./data/bars.json", {"name":"./data/bars.json","mimeType":"application/json","path":"./_file/data/bars.c6f4677a.json","lastModified":1725624537543,"size":178000});
+registerFile("./data/bars.json", {"name":"./data/bars.json","mimeType":"application/json","path":"./_file/data/bars.c6f4677a.json","lastModified":1726471494739,"size":178000});
 
 define({id: "8d29335d", inputs: ["display","html"], outputs: ["maplibregl","deck","DeckGL","AmbientLight","GeoJsonLayer","HexagonLayer","LightingEffect","PointLight","MapboxOverlay","ScatterplotLayer","ArcLayer"], body: async (display,html) => {
-const [{default: maplibregl}, {default: deck}] = await Promise.all([import("./_npm/maplibre-gl@4.6.0/a215d58a.js"), import("./_npm/deck.gl@9.0.29/dist.min.js.d8da2739.js")]);
+const [{default: maplibregl}, {default: deck}] = await Promise.all([import("./_npm/maplibre-gl@4.7.0/93efe05b.js"), import("./_npm/deck.gl@9.0.29/dist.min.js.d8da2739.js")]);
 // Libraries
-display(html`<link rel="stylesheet" href="${new URL("./_npm/maplibre-gl@4.6.0/dist/maplibre-gl.css", location).href}">`);
+display(html`<link rel="stylesheet" href="${new URL("./_npm/maplibre-gl@4.7.0/dist/maplibre-gl.css", location).href}">`);
 const {DeckGL, AmbientLight, GeoJsonLayer, HexagonLayer, LightingEffect, PointLight, MapboxOverlay, ScatterplotLayer, ArcLayer} = deck;
 return {maplibregl,deck,DeckGL,AmbientLight,GeoJsonLayer,HexagonLayer,LightingEffect,PointLight,MapboxOverlay,ScatterplotLayer,ArcLayer};
 }});
@@ -170,6 +170,6 @@ return {data};
 </main>
 <footer id="observablehq-footer">
 <nav><a rel="prev" href="./bars"><span>Bars and Pubs in Paris</span></a><a rel="next" href="./deck_test1"><span>A simple circle</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2024-09-06T12:09:01">Sep 6, 2024</a>.</div>
+<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2024-09-16T07:25:03">Sep 16, 2024</a>.</div>
 </footer>
 </div>
