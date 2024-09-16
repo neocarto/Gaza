@@ -2,51 +2,392 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="generator" content="Observable Framework v1.11.0">
-<title>Observable Sandbox</title>
+<title>Bombs rain down on Gaza | Hello Framework</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight.6e6037b3.css">
+<link rel="preload" as="style" href="./_observablehq/theme-ocean-floor.e545c7cf.css">
+<link rel="preload" as="style" href="./_observablehq/stdlib/inputs.ea9fd553.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight.6e6037b3.css">
-<link rel="modulepreload" href="./_observablehq/client.d8d98a61.js">
+<link rel="stylesheet" type="text/css" href="./_observablehq/theme-ocean-floor.e545c7cf.css">
+<link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.ea9fd553.css">
+<link rel="modulepreload" href="./_observablehq/client.bf01212c.js">
 <link rel="modulepreload" href="./_observablehq/runtime.62b61640.js">
 <link rel="modulepreload" href="./_observablehq/stdlib.10504731.js">
-<link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
+<link rel="modulepreload" href="./_npm/maplibre-gl@4.7.0/93efe05b.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
+<link rel="modulepreload" href="./_npm/htl@0.3.1/063eb405.js">
+<link rel="modulepreload" href="./_observablehq/stdlib/inputs.470d1590.js">
+<link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
 <script type="module">
 
-import "./_observablehq/client.d8d98a61.js";
+import {define} from "./_observablehq/client.bf01212c.js";
+import {registerFile} from "./_observablehq/stdlib.10504731.js";
+
+registerFile("./check@1.png", {"name":"./check@1.png","mimeType":"image/png","path":"./check@1.png"});
+registerFile("./data/data.csv", {"name":"./data/data.csv","mimeType":"text/csv","path":"./_file/data/data.91b553a9.csv","lastModified":1726476435427,"size":33404453});
+registerFile("./loading.gif", {"name":"./loading.gif","mimeType":"image/gif","path":"./loading.gif"});
+
+define({id: "0b9fcb3e", inputs: ["display","html"], outputs: ["maplibregl"], body: async (display,html) => {
+const {default: maplibregl} = await import("./_npm/maplibre-gl@4.7.0/93efe05b.js");
+display(html`<link rel="stylesheet" href="${new URL("./_npm/maplibre-gl@4.7.0/dist/maplibre-gl.css", location).href}">`);
+
+return {maplibregl};
+}});
+
+define({id: "8fdab73e", inputs: ["view","Inputs","dates"], outputs: ["select"], body: (view,Inputs,dates) => {
+let select = view(Inputs.select(
+  new Map(dates.map((d) => [d.label, d.class]).reverse()),
+  {
+    value: "",
+    label: "Damage and destruction at"
+  }
+))
+return {select};
+}});
+
+define({id: "3ff88574", inputs: ["html","day","select","dispdata","display"], outputs: ["text"], body: (html,day,select,dispdata,display) => {
+let text = html`Au <b>${day.get(
+  select
+)}</b>, Based on satellite images, the United Nations Satellite Center (UNOSAT) had counted <b>${dispdata.length.toLocaleString(
+  "fr-FR"
+)} </b>damage and destruction of structures in the Gaza Strip (source: <a href="https://unosat.org/products/3904">unosat.org/products/3904</a>).`
+display(text)
+return {text};
+}});
+
+define({id: "4f1b2dfc", inputs: ["html","display"], outputs: ["gaza"], body: (html,display) => {
+let gaza = html`<div  class="card" style="height:600px"></div>`
+display(gaza)
+return {gaza};
+}});
+
+define({id: "1cab34e2", inputs: ["maplibregl","gaza","geodata","siteclass","invalidation"], outputs: ["hovereId","map"], body: (maplibregl,gaza,geodata,siteclass,invalidation) => {
+  let hovereId = null;
+  //const container = yield html`<div style="height:500px;">`;
+
+  const map = new maplibregl.Map({
+    container: gaza,
+    zoom: 10.5,
+    bearing: -50,
+    //bounds: bb,
+    center: [34.4017, 31.4067],
+    //pitch: 52,
+    //hash: true,
+    style: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+    attributionControl: false
+    //maxZoom: 18,
+    //maxPitch: 85
+  });
+
+  map.on("load", function () {
+    // Data source
+    map.addSource("unosat", {
+      type: "geojson",
+      data: geodata
+    });
+
+    // Add heatmap
+    map.addLayer(
+      {
+        id: "heatlayer",
+        type: "heatmap",
+        source: "unosat",
+        maxzoom: 17,
+        paint: {
+          // Increase the heatmap weight based on frequency and property magnitude
+          // "heatmap-weight": [
+          //   "interpolate",
+          //   ["linear"],
+          //   ["get"],
+          //   //["get", "Main_Damage_Site_Class_8"],
+          //   0,
+          //   0,
+          //   6,
+          //   1
+          // ],
+          //"heatmap-intensity": 10,
+          "heatmap-intensity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10.5,
+            0.2,
+            15,
+            10
+          ],
+          "heatmap-color": [
+            "interpolate",
+            ["linear"],
+            ["heatmap-density"],
+            0,
+            "rgba(33,102,172,0)",
+            0.2,
+            "rgb(103,169,207)",
+            0.4,
+            "rgb(209,229,240)",
+            0.6,
+            "rgb(253,219,199)",
+            0.8,
+            "rgb(239,138,98)",
+            1,
+            "rgb(178,24,43)"
+          ],
+          "heatmap-radius": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10.5,
+            6,
+            15,
+            8
+          ],
+          "heatmap-opacity": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10.5,
+            1,
+            15,
+            1,
+            17,
+            0.3
+          ]
+        }
+      },
+      "waterway"
+    );
+
+    // Add layer dots
+    map.addLayer({
+      id: "dots",
+      type: "circle",
+      source: "unosat",
+      minzoom: 13,
+      paint: {
+        "circle-color": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          "red",
+          "black"
+        ],
+
+        "circle-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          13,
+          0.5,
+          15.5,
+          1
+        ],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 13, 1, 20, 10]
+      }
+    });
+
+    // Popup
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false
+    });
+
+    map.on("mousemove", "dots", function (e) {
+      map.getCanvas().style.cursor = "pointer";
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      const description = `Ville : ${e.features[0].properties.Municipality}<br/>
+${siteclass.get(e.features[0].properties.Main_Damage_Site_Class_8)}`;
+      popup.setLngLat(coordinates).setHTML(description).addTo(map);
+      if (e.features.length > 0) {
+        if (hovereId) {
+          map.setFeatureState(
+            { source: "unosat", id: hovereId },
+            { hover: false }
+          );
+        }
+        hovereId = e.features[0].properties.id;
+        map.setFeatureState(
+          { source: "unosat", id: hovereId },
+          { hover: true }
+        );
+      }
+    });
+    map.on("mouseleave", "dots", function () {
+      map.getCanvas().style.cursor = "";
+      popup.remove();
+      if (hovereId) {
+        map.setFeatureState(
+          { source: "unosat", id: hovereId },
+          { hover: false }
+        );
+      }
+      hovereId = null;
+    });
+  });
+
+  map.addControl(new maplibregl.NavigationControl(), "top-right");
+  map.addControl(new maplibregl.FullscreenControl());
+  map.addControl(
+    new maplibregl.AttributionControl({
+      customAttribution: `Nicolas Lambert, 2024 - UNOSAT Gaza Strip 8th Comprehensive Damage Assessment - July 2024 (https://unosat.org/products/3904)`,
+      compact: true
+    })
+  );
+  invalidation.then(() => map.remove());
+
+return {hovereId,map};
+}});
+
+define({id: "64168986", inputs: ["FileAttachment"], outputs: ["data","features","geodata"], body: async (FileAttachment) => {
+// DATA IMPORT AND HANDLING
+let data = await FileAttachment("./data/data.csv")
+  .csv()
+  let features = data.map((d) => ({
+    type: "Feature",
+    properties: d,
+    geometry: { type: "Point", coordinates: [d.X, d.Y] }
+  }));
+  let geodata =  { type: "FeatureCollection", features };
+
+return {data,features,geodata};
+}});
+
+define({id: "be94c413", inputs: ["map","select"], body: (map,select) => {
+  if (map.isStyleLoaded()) {
+    map.setFilter("heatlayer", [
+      "all",
+      ["!=", ["get", select], "NA"],
+      ["!=", ["get", select], 6]
+    ]);
+    map.setFilter("dots", [
+      "all",
+      ["!=", ["get", select], "NA"],
+      ["!=", ["get", select], 6]
+    ]);
+  } else {
+    null;
+  }
+
+}});
+
+define({id: "f8f80bb4", inputs: ["data","select"], outputs: ["dispdata"], body: (data,select) => {
+let dispdata = data
+  .filter((d) => d[select] != "NA")
+  .filter((d) => d.Main_Damage_Site_Class_8 != 6)
+return {dispdata};
+}});
+
+define({id: "d6503e21", inputs: ["data"], outputs: ["options","dates","day"], body: (data) => {
+// DATES
+let options = ({ weekday: "long", year: "numeric", month: "long", day: "numeric" })
+let dates = [
+  {
+    date: data[0].SensorDate,
+    label: new Date(data[0].SensorDate).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class",
+    status: "Damage_Status"
+  },
+  {
+    date: data[0].SensorDate_2,
+    label: new Date(data[0].SensorDate_2).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_2",
+    status: "Damage_Status_2"
+  },
+  {
+    date: data[0].SensorDate_3,
+    label: new Date(data[0].SensorDate_3).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_3",
+    status: "Damage_Status_3"
+  },
+  {
+    date: data[0].SensorDate_4,
+    label: new Date(data[0].SensorDate_4).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_4",
+    status: "Damage_Status_4"
+  },
+  {
+    date: data[0].SensorDate_5,
+    label: new Date(data[0].SensorDate_5).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_5",
+    status: "Damage_Status_5"
+  },
+  {
+    date: data[0].SensorDate_6,
+    label: new Date(data[0].SensorDate_6).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_6",
+    status: "Damage_Status_6"
+  },
+  {
+    date: data[0].SensorDate_7,
+    label: new Date(data[0].SensorDate_7).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_7",
+    status: "Damage_Status_7"
+  },
+  {
+    date: data[0].SensorDate_8,
+    label: new Date(data[0].SensorDate_8).toLocaleDateString("en-EN", options),
+    class: "Main_Damage_Site_Class_8",
+    status: "Damage_Status_8"
+  }
+]
+let day = new Map(dates.map((d) => [d.class, d.label]))
+return {options,dates,day};
+}});
+
+define({id: "4f434f2d", outputs: ["siteclass","total"], body: () => {
+// TABLES
+let siteclass = new Map([
+  [1, "Destroyed"],
+  [2, "Severe Damage"],
+  [3, "Moderate Damage"],
+  [4, "Possible Damage"],
+  [5, "Impact Crater (Damage to Road)"],
+  [6, "No Visible Damage"],
+  [7, "Impact Crater (Damage to Field)"],
+  [8, "Destroyed (Demolition Zone)"],
+  [9, "Suspected Phosphorus shell Attack Zone"],
+  [10, "Road Damage from Tank Passage"],
+  [11, "Possible Damage from adjacent impact, debris"],
+  [12, "Lava Flow"],
+  [13, "Damage"]
+])
+let total = 215137
+return {siteclass,total};
+}});
+
+define({id: "c156607e", inputs: ["FileAttachment"], outputs: ["loading","check"], body: async (FileAttachment) => {
+// IMAGES
+let loading = await FileAttachment("./loading.gif").url()
+let check = await FileAttachment("./check@1.png").url()
+
+return {loading,check};
+}});
 
 </script>
-<input id="observablehq-sidebar-toggle" type="checkbox" title="Toggle sidebar">
-<label id="observablehq-sidebar-backdrop" for="observablehq-sidebar-toggle"></label>
-<nav id="observablehq-sidebar">
-  <ol>
-    <label id="observablehq-sidebar-close" for="observablehq-sidebar-toggle"></label>
-    <li class="observablehq-link observablehq-link-active"><a href="./">Observable Sandbox</a></li>
-  </ol>
-  <ol>
-    <li class="observablehq-link"><a href="./bars">Bars and Pubs in Paris</a></li>
-    <li class="observablehq-link"><a href="./bars2">Bars and Pubs in Paris (2)</a></li>
-    <li class="observablehq-link"><a href="./deck_test1">A simple circle</a></li>
-    <li class="observablehq-link"><a href="./deckfromfil">An example from Fil</a></li>
-    <li class="observablehq-link"><a href="./geoviz_globe">Untitled</a></li>
-    <li class="observablehq-link"><a href="./gridviz">Gridviz</a></li>
-    <li class="observablehq-link"><a href="./maplibre">Untitled</a></li>
-    <li class="observablehq-link"><a href="./webR">Test some things with webR</a></li>
-  </ol>
-</nav>
-<script>{Object.assign(document.createElement("a"),{href:""}).password&&location.replace(location.href);const e=document.querySelector("#observablehq-sidebar"),t=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?t.checked=r==="true":t.indeterminate=!0;for(const o of document.querySelectorAll("#observablehq-sidebar summary")){const s=o.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${o.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
 <aside id="observablehq-toc" data-selector="h1:not(:first-of-type)[id], h2:first-child[id], :not(h1) + h2[id]">
 <nav>
 </nav>
 </aside>
 <div id="observablehq-center">
 <main id="observablehq-main" class="observablehq">
-<div align="center">In this sandbox, I share tests, things ans stuff I've done with <a href="https://observablehq.com/framework/" target="_BLANK" rel="noopener noreferrer">Observable Framework</a>. This is self-learning process. If things are done in a wrong way, it's because I'm still on my way to learning. If you have any suggestions or comments, don't hesitate to use <a href="https://github.com/neocarto/observable-sandbox/issues" taret="_BLANK" target="_blank" rel="noopener noreferrer">github issues</a></div>
-<br>
-<div align="center">If you prefer, you'll find many other examples in <a href="https://observablehq.com/user/@neocartocnrs" taret="_BLANK" target="_blank" rel="noopener noreferrer">Observable Notbooks</a></div></main>
+<details>
+  <summary>Click me</summary>
+<p>Since October 7, 2023, bombardments have rained down on Gaza. An entire people is being massacred. An entire country has been brought to its knees. Schools, hospitals, universities - everything is being methodically destroyed under the orders of Benjamin Netanyahu's far-right government, which continues its criminal headlong rush.</p>
+<p>But how to account for the scale of such a massacre? One possible method is to analyze satellite images. And this is precisely the method employed by UNOSAT, the United Nations Satellite Center. To do this, UNOSAT mobilized 8 sets of satellite images spanning the period from October 15, 2023 to July 6, 2024 to meticulously identify, date by date, the damage caused by the Israeli army's bombardment and incursion. The results are overwhelming: 46,223 structures destroyed, 18,478 severely damaged, 55,954 moderately damaged and 35,754 probably damaged. In all, some 156,409 structures were destroyed, representing around 63% of all structures in the Gaza Strip. After the war, everything will have to be rebuilt.</p>
+<p>The balance sheet is therefore edifying. The popular response must be equal to the drama unfolding in Gaza. Unwavering solidarity with our Palestinian brothers and sisters fighting for their freedom. General mobilization for a just and lasting peace between Palestinians and Israelis.</p>
+</details>
+<div class="observablehq observablehq--block"><!--:0b9fcb3e:--></div>
+<h1 id="bombs-rain-down-on-gaza" tabindex="-1"><a class="observablehq-header-anchor" href="#bombs-rain-down-on-gaza">Bombs rain down on Gaza</a></h1>
+<div class="observablehq observablehq--block"><!--:8fdab73e:--></div>
+<div class="observablehq observablehq--block"><!--:3ff88574:--></div>
+<div class="observablehq observablehq--block"><!--:4f1b2dfc:--></div>
+<div class="observablehq observablehq--block"><!--:1cab34e2:--></div>
+<div class="observablehq observablehq--block"><!--:64168986:--></div>
+<div class="observablehq observablehq--block"><!--:be94c413:--></div>
+<div class="observablehq observablehq--block"><!--:f8f80bb4:--></div>
+<div class="observablehq observablehq--block"><!--:d6503e21:--></div>
+<div class="observablehq observablehq--block"><!--:4f434f2d:--></div>
+<div class="observablehq observablehq--block"><!--:c156607e:--></div>
+</main>
 <footer id="observablehq-footer">
-<nav><a rel="next" href="./bars"><span>Bars and Pubs in Paris</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2024-09-16T07:25:20">Sep 16, 2024</a>.</div>
+<div>Source: <a href="./github.com/neocarto/Gaza">https://github.com/neocarto/Gaza</a></div>
 </footer>
 </div>
