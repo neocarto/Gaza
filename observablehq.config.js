@@ -26,7 +26,7 @@ export default {
   // theme: "default", // try "light", "dark", "slate", etc.
   // header: "", // what to show in the header (HTML)
   footer:
-    "Source: <a href = 'github.com/neocarto/Gaza'>https://github.com/neocarto/Gaza</a>", // what to show in the footer (HTML)
+    "Source: <a href = 'https://github.com/neocarto/Gaza'>github.com/neocarto/Gaza</a>", // what to show in the footer (HTML)
   // sidebar: true, // whether to show the sidebar
   // toc: true, // whether to show the table of contents
   // pager: true, // whether to show previous & next links in the footer

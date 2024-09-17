@@ -30,7 +30,6 @@ let select = view(Inputs.select(
 ))
 ```
 
-
 ```js
 let text = html`Au <b>${day.get(
   select
